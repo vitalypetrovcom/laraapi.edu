@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ArticlesController extends Controller { // Контроллер для получения постов по api
 
@@ -26,4 +27,38 @@ class ArticlesController extends Controller { // Контроллер для п�
         return response()->json($article); // Если пост есть, возвращаем его в формате json
     }
 
+    public function storeArticle(Request $request)
+    {
+
+        // Указываем только переменные, которые подлежат получению и сохранению в БД (любые другие поля будут проигнорированы)
+        $request_data = $request->only(['title', 'content']);
+
+        // Указываем правила валидации и валидируем данные
+        $validator = Validator::make($request_data, [
+            "title" => ['required', 'string'],
+            "content" => ['required', 'string']
+        ]);
+
+        // Если ошибка валидации
+        if ($validator->fails()) {
+            return response()->json([
+                "status" => false,
+                "errors" => $validator->messages()
+            ])->setStatusCode(422);
+        }
+
+        // Если валидация прошла успешно, Сохраняем передаваемые данные
+        $article = Article::create([
+            "title" => $request->title,
+            "content" => $request->content
+        ]);
+
+        // Выдаем сообщение об успешном сохранении данных
+        return response()->json([
+            "status" => true,
+            "article" => $article
+        ])->setStatusCode(201, "Article is store");
+
+
+    }
 }

@@ -32,3 +32,11 @@ Route::get('/articles', 'App\Http\Controllers\Api\ArticlesController@showArticle
 
 Route::get('/articles/{id}', [ArticlesController::class, "showArticle"]);
 
+/*
+ * Добавление нового поста
+ * URI: {host}/api/articles
+ */
+
+Route::post ('/articles', [ArticlesController::class, "storeArticle"]);
+
+
