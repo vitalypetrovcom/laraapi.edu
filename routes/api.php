@@ -39,4 +39,22 @@ Route::get('/articles/{id}', [ArticlesController::class, "showArticle"]);
 
 Route::post ('/articles', [ArticlesController::class, "storeArticle"]);
 
+/*
+ * Изменение (редактирование/обновление) поста в БД с помощью методов PUT | PATCH.
+ * PUT метод отвечает за то, чтобы обновить полностью всю запись (пост содержит заголовок и контент, метод PUT обновит и заголовок и контент). PATCH метод позволяет обновлять только те данные, которые мы отправили (если мы отправили только измененный заголовок, тогда будет перезаписан только данный заголовок, а контент поста останется без изменений)
+ * URI: {host}/api/articles/{id}
+ */
 
+/*
+ * Изменение (редактирование/обновление) поста с помощью метода PUT
+ * URI: {host}/api/articles/{id}
+ */
+
+Route::put ('/articles/{id}', [ArticlesController::class, "putArticle"]);
+
+/*
+ * Изменение частичное (редактирование/обновление) поста с помощью метода PATCH
+ * URI: {host}/api/articles/{id}
+ */
+
+Route::patch ('/articles/{id}', [ArticlesController::class, "patchArticle"]);

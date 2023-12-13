@@ -8,6 +8,8 @@
     <title>Test API</title>
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -48,32 +50,74 @@
     </div>
 </div>
 
+<!-- Modal --> {{-- Всплывающее модальное окно для обновления конкретного поста c id --}}
+<div class="modal fade" id="update" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Article</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action=""> {{-- Форма для редактирования (заполнения) полей --}}
+                    <input type="hidden" id="id-update"> {{-- Поле для идентификации поста по id используя jQuery в функции updateArticle и setFieldsForModalUpdate --}}
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Article title</label>
+                        <input type="text" class="form-control" id="title-update">
+                        <div class="alert alert-danger mt-2 d-none" id="title-error" role="alert"> {{-- Если не прошли валидацию поля, вывод ошибки валидации поля --}}
+
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Article content</label>
+                        <textarea class="form-control" id="content-update" rows="3"></textarea>
+                        <div class="alert alert-danger mt-2 d-none" id="content-error" role="alert">
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer"> {{-- Кнопки внизу модальной формы --}}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateArticle()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script>
-    $.ajax({ // Форма для отправки данных на сервер в jQuery, мы отправляем объект
-        url: "/api/articles", // Указываем url
-        type: "GET", // Метод передачи данных
-        dataType: "json", // Формат данных которые мы будем получать от сервера
-        success(data) { // Вызываем метод success, который будет у нас в том случае, если нам пришел ответ об успешном выполнении запроса (200, 2..). Отправляем в него в качестве переменной переменную data (она будет содержать в себе то содержимое, которое возвращает нам api - ответ в json)
-            for (let index in data) { // Обращаемся через jQuery к блоку '.articles' и через метод append мы добавим html разметку, в которой мы заменим статичные данные на данные из постов БД
-                $('.articles').append(`
-                    <div class="card" style="width: 18rem; margin-right: 10px;">
+    function loadArticles() { // Функция jQuery для отображения списка постов
+        $('.articles').html(''); // До того как у нас выполнится ajax запрос, мы можем обратиться к блоку, в который мы добавляем посты ('.articles') и с помощью html метода очистить все, что есть внутри него html('') (это нужно, чтобы посты при обновлении данных в модельном окне не отображались как новые посты, а происходило только обновление редактируемого поста
+        $.ajax({
+            url: "/api/articles",
+            type: "GET",
+            dataType: "json",
+            success(data) {
+                for (let index in data) {
+                    $('.articles').append(`
+                    <div class="card" style="width: 18rem; margin-right: 10px; margin-bottom: 10px;">
                         <div class="card-body">
                             <h5 class="card-title">${data[index].title}</h5>
                             <p class="card-text">${data[index].content.slice(0, 20)}...</p>
-                            <a href="#" class="btn btn-primary" onclick="fullArticle(${data[index].id})">Show</a> <!-- Кнопка для отображения поста полностью. Добавляем на нее функцию fullArticle с помощью onclick -->
+                            <a href="#" class="btn btn-primary" onclick="fullArticle(${data[index].id})">Show</a>
+                            <button type="button" onclick="setFieldsForModalUpdate('${data[index].title}', '${data[index].content}', ${data[index].id})" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#update">
+                                Update
+                            </button> <!-- Кнопка открытия модального окна при выводе каждого поста. Важно! Переменные передаем в одинарных кавычках, чтобы они воспринимались как текст '${data[index].title}'-->
                         </div>
                     </div>
                 `)
+                }
             }
-        }
-    })
+        });
+    }
 
-    function fullArticle(id) { // Метод jQuery для получения данных поста по id из массива data по конкретным названиям классов ( article-title, article-content, full-article) в Таблицу Full post
+    loadArticles(); /* Запуск jQuery функции loadArticles() */
+
+    function fullArticle(id) { // Функция для отображения поста в браузере в раскрывающейся форме
         $.ajax({
-            url: "/api/articles/" + id,
+            url: "/api/articles/" + id, /* url для отображения в браузере поста определенным id */
             type: "GET",
             dataType: "json",
             success(data) {
@@ -144,15 +188,43 @@
                             <h5 class="card-title">${data.article.title}</h5>
                             <p class="card-text">${data.article.content.slice(0, 20)}...</p>
                             <a href="#" class="btn btn-primary" onclick="fullArticle(${data.article.id})">Show</a>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#update">
+                                Update
+                            </button>
                         </div>
                     </div>
                 `);
 
-                /*console.log(data)*/
+                console.log(data)
             }
         })
     }
 
+    function setFieldsForModalUpdate(title, content, id) { // Функция jQuery для вывода данных поста в модальную форму для Update
+        $('#title-update').val(title); // Используя jQuery обращаемся к полям, которые у нас есть в модальном окне и заполнить их данными полей поста с определенным id
+        $('#content-update').val(content);
+        $('#id-update').val(id); // Идентификатор поста по id
+    }
+
+    function updateArticle() { // Функция jQuery для обновления данных полей поста с определенным id
+        const title = $('#title-update').val(), /* Получаем в качестве констант обновленные данные из полей формы в модальном окне. */
+            content = $('#content-update').val(),
+            id = $('#id-update').val(); // Идентификатор поста по id
+
+        $.ajax({ // Записываем данные каждого поля для поста с определенным id в БД методом PUT. Делаем ajax запрос,
+            url: "/api/articles/" + id, // указываем адрес на обновление данных,
+            type: "PUT", // метод "PUT"
+            dataType: "json", // данные в формате "json"
+            data: { // Наименования полей для обновления
+                title, // В современном JS выражение (title: title - ключ: значение) если название ключа совпадает с названием значения, можно просто указывать только название ключа title, следующий аналогичный совпадающий ключ:значение через запятую
+                content
+            },
+            success(data) { // Функция success, в которой мы получаем ответ при успешном обновлении данных и закрываем модальное окно
+                $('#update').modal('hide');
+                loadArticles(); // Отображаем список всех постов
+            }
+        })
+    }
 </script>
 </body>
 </html>
