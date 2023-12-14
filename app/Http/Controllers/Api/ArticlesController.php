@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class ArticlesController extends Controller { // Контроллер для получения постов по api
 
     public function showArticles() { // Метод для вывода списка постов по api
-        $articles = Article::all(); // Выводим все записи
+        $articles = Article::all(); // Выводим все записи из БД
         return response()->json($articles); // Возвращаем записи в стандартном формате json (правильное отображение всех заголовков итд.). Так же можем вторым параметром передать желаемый статус (код) ответа json($articles, 201)
     }
 
@@ -161,8 +161,25 @@ class ArticlesController extends Controller { // Контроллер для п�
             "status" => true,
             "message" => "Article is updated!"
         ])->setStatusCode(200, 'Article is updated!'); // Передаем статус ответа
+    }
 
+    public function deleteArticle ($id) { // Метод удаления постов из БД по api
 
+        // Проверяем наличие поста с указанным id
+        $article = Article::find($id);
+        if (!$article) { // Если такого поста нет в БД, выдаем страницу c ошибкой в формате json в виде:
+            return response()->json([
+                "status" => false,
+                "message" => "Article Not Found"
+            ])->setStatusCode(404, 'Article Not Found'); // Передаем статус ответа
+        }
+
+        // Удаляем пост
+        $article->delete ();
+        return response()->json([
+            "status" => true,
+            "message" => "Article is deleted!"
+        ])->setStatusCode(200, 'Article is deleted!'); // Передаем статус ответа
 
 
     }

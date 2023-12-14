@@ -17,7 +17,7 @@
     <div class="row mt-3 articles">
 
     </div>
-    <div class="row mt-3 full-article d-none"> {{-- С помощью параметра d-none  мы скрываем запись до момента нажатия кнопки Show --}}
+    <div class="row mt-3 full-article d-none"> {{-- Форма (раскрывающаяся) для отображения  поста на странице всех постов --}} {{-- С помощью параметра d-none  мы скрываем запись до момента нажатия кнопки Show --}}
         <div class="card">
             <div class="card-header">
                 Full Post
@@ -29,7 +29,7 @@
         </div>
     </div>
     <hr>
-    <div class="row mt-4 mb-4">
+    <div class="row mt-4 mb-4"> {{-- Форма для добавления поста на странице всех постов --}}
         <form action="">
             <div class="mb-3">
                 <label for="title" class="form-label">Article title</label>
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<!-- Modal --> {{-- Всплывающее модальное окно для обновления конкретного поста c id --}}
+<!-- Modal --> {{-- Всплывающее модальное окно для обновления UPDATE конкретного поста c id --}}
 <div class="modal fade" id="update" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -85,11 +85,29 @@
     </div>
 </div>
 
+<div class="modal" id="delete" tabindex="-1"> {{-- Всплывающее модальное окно для удаления DELETE конкретного поста c id --}}
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete article</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <input type="hidden" id="delete-id">
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить пост - <span id="delete-title"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="deleteArticle()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script>
     function loadArticles() { // Функция jQuery для отображения списка постов
-        $('.articles').html(''); // До того как у нас выполнится ajax запрос, мы можем обратиться к блоку, в который мы добавляем посты ('.articles') и с помощью html метода очистить все, что есть внутри него html('') (это нужно, чтобы посты при обновлении данных в модельном окне не отображались как новые посты, а происходило только обновление редактируемого поста
+        $('.articles').html(''); // До того как у нас выполнится ajax запрос, мы можем обратиться к блоку, в который мы добавляем посты ('.articles') и с помощью html метода очистить все, что есть внутри него html('') (это нужно, чтобы посты при обновлении данных в модальном окне не отображались как новые посты, а происходило только обновление редактируемого поста
         $.ajax({
             url: "/api/articles",
             type: "GET",
@@ -105,6 +123,9 @@
                             <button type="button" onclick="setFieldsForModalUpdate('${data[index].title}', '${data[index].content}', ${data[index].id})" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#update">
                                 Update
                             </button> <!-- Кнопка открытия модального окна при выводе каждого поста. Важно! Переменные передаем в одинарных кавычках, чтобы они воспринимались как текст '${data[index].title}'-->
+                            <button type="button" onclick="setFieldsForModalDelete('${data[index].title}', ${data[index].id})" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete">
+                                Delete
+                            </button>
                         </div>
                     </div>
                 `)
@@ -113,7 +134,7 @@
         });
     }
 
-    loadArticles(); /* Запуск jQuery функции loadArticles() */
+    loadArticles(); /* Запуск jQuery функции loadArticles()  - Отображение страницы со списком всех постов */
 
     function fullArticle(id) { // Функция для отображения поста в браузере в раскрывающейся форме
         $.ajax({
@@ -188,13 +209,16 @@
                             <h5 class="card-title">${data.article.title}</h5>
                             <p class="card-text">${data.article.content.slice(0, 20)}...</p>
                             <a href="#" class="btn btn-primary" onclick="fullArticle(${data.article.id})">Show</a>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#update">
+                            <button type="button" onclick="setFieldsForModalUpdate('${data.article.title}', '${data.article.content}', ${data.article.id})" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#update">
                                 Update
+                            </button> <!-- Кнопка открытия модального окна при выводе каждого поста. Важно! Переменные передаем в одинарных кавычках, чтобы они воспринимались как текст '${data.article.title}'-->
+                            <button type="button" onclick="setFieldsForModalDelete('${data.article.title}', ${data.article.id})" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete">
+                                Delete
                             </button>
                         </div>
                     </div>
                 `);
-
+                loadArticles(); // Отображаем (перезагружаем) страницу со списком всех постов
                 console.log(data)
             }
         })
@@ -220,11 +244,31 @@
                 content
             },
             success(data) { // Функция success, в которой мы получаем ответ при успешном обновлении данных и закрываем модальное окно
-                $('#update').modal('hide');
-                loadArticles(); // Отображаем список всех постов
+                $('#update').modal('hide'); // Закрываем модальное окно
+                loadArticles(); // Отображаем (перезагружаем) страницу со списком всех постов
             }
         })
     }
+
+    function setFieldsForModalDelete(title, id) { //Функция jQuery для вывода данных поста в модальную форму для Delete
+        $('#delete-id').val(id); // Используя jQuery обращаемся к полям, которые у нас есть в модальном окне и заполнить их данными полей поста с определенным id
+        $('#delete-title').text(title);
+    }
+
+    function deleteArticle() { //Функция jQuery для удаления поста в модальном окне
+        const id = $('#delete-id').val();
+
+        $.ajax({
+            url: "/api/articles/" + id,
+            type: "DELETE",
+            dataType: "json",
+            success(data) {
+                $('#delete').modal('hide'); // Закрываем модальное окно
+                loadArticles(); // Отображаем (перезагружаем) страницу со списком всех постов
+            }
+        })
+    }
+
 </script>
 </body>
 </html>

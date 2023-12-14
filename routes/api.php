@@ -58,3 +58,10 @@ Route::put ('/articles/{id}', [ArticlesController::class, "putArticle"]);
  */
 
 Route::patch ('/articles/{id}', [ArticlesController::class, "patchArticle"]);
+
+/*
+ * Удаление поста по id с помощью метода DELETE
+ * URI: {host}/api/articles/{id}
+ */
+
+Route::delete ('/articles/{id}', [ArticlesController::class, "deleteArticle"]);
