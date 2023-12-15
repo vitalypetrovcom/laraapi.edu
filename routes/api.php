@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\ArticlesController;
+
+use App\Http\Controllers\Api\NewArticleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +26,14 @@ use Illuminate\Support\Facades\Route;
 
 /*Route::get('/articles', [ArticlesController::class, "showArticles"]);*/
 Route::get('/articles', 'App\Http\Controllers\Api\ArticlesController@showArticles');
+
+/*
+ * Получение списка постов из таблицы new-articles
+ * URI: {host}/api/articles
+ */
+
+/*Route::get('/new-articles', [NewArticleController::class, "getAll"]);*/
+Route::apiResource ('new-articles', NewArticleController::class);
 
 /*
  * Получение одного поста по ID
