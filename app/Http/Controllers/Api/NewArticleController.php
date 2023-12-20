@@ -67,6 +67,7 @@ class NewArticleController extends Controller
      */
     public function store(Request $request)
     {
+
         // Получаем данные из формы и записываем их в свойства поста
         $article = NewArticle::create([
             'title' => $request->title,
