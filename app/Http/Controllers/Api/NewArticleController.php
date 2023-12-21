@@ -17,6 +17,10 @@ class NewArticleController extends Controller
 
     private $articlesList = []; // Создаем переменную $articlesList для добавления дополнительных полей при выводе постов
 
+    public function __construct () { // Метод для использования токена для доступа к ресурсу
+        $this->middleware('bearer-auth')->only ('store'); // Используем посредник 'bearer-auth' и метод only (указываем в нем методы текущего контроллера, к которым мы применим данный посредник) (применяем посредник к методу 'store' - мы не хотим, чтобы не авторизованные пользователи могли добавлять посты - только авторизованный пользователь!)
+    }
+
     /**
      * Display a listing of the resource.
      */

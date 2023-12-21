@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ArticlesController;
 
 use App\Http\Controllers\Api\NewArticleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,12 @@ Route::get('/articles', 'App\Http\Controllers\Api\ArticlesController@showArticle
  */
 
 /*Route::get('/new-articles', [NewArticleController::class, "getAll"]);*/
+
+/*
+ * Получение списка постов из таблицы new-articles с использованием метода apiResource
+ * URI: {host}/api/articles
+ */
+
 Route::apiResource ('new-articles', NewArticleController::class);
 
 /*
@@ -75,3 +82,35 @@ Route::patch ('/articles/{id}', [ArticlesController::class, "patchArticle"]);
  */
 
 Route::delete ('/articles/{id}', [ArticlesController::class, "deleteArticle"]);
+
+/*
+ * Маршруты для пользователей user
+ * URI: {host}/api/
+ */
+
+/*
+ * Маршрут для регистрации пользователя user
+ * URI: {host}/api/register
+ */
+
+Route::post ('/register', [UserController::class, "register"]);
+
+/*
+ * Маршрут для авторизации пользователя user
+ * URI: {host}/api/login
+ */
+
+Route::post ('/login', [UserController::class, "login"]);
+
+/*
+ * Маршрут для теста. Нам нужно создать посредника, который будет проверять, авторизован ли пользователь и может ли он обратиться к этому url
+ * URI: {host}/api/test
+ */
+
+Route::get ('test', function () {
+    return [
+        "key" => \Illuminate\Support\Str::random (30),
+        "port" => 4743,
+        "api_url" => "http://test-hide-url.dev"
+    ];
+})->middleware ('bearer-auth'); // Указываем нашему маршруту посредник 'bearer-auth'. Теперь наш маршрут и все запросы по данному маршруту будут работать через посредника.

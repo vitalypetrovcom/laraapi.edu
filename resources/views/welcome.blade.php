@@ -11,11 +11,11 @@
 </head>
 <body>
 
-<div class="container">
+{{--<div class="container">
     <div class="row mt-3 articles">
 
     </div>
-    <div class="row mt-3 full-article d-none"> {{-- Форма (раскрывающаяся) для отображения  поста на странице всех постов --}} {{-- С помощью параметра d-none  мы скрываем запись до момента нажатия кнопки Show --}}
+    <div class="row mt-3 full-article d-none">  Форма (раскрывающаяся) для отображения  поста на странице всех постов   С помощью параметра d-none  мы скрываем запись до момента нажатия кнопки Show
         <div class="card">
             <div class="card-header">
                 Full Post
@@ -27,7 +27,7 @@
         </div>
     </div>
     <hr>
-    <div class="row mt-4 mb-4"> {{-- Форма для добавления поста на странице всех постов. Отправка js onclick="storeArticle() --}}
+    <div class="row mt-4 mb-4">  Форма для добавления поста на странице всех постов. Отправка js onclick="storeArticle()
         <form action="">
             <div class="mb-3">
                 <label for="title" class="form-label">Article title</label>
@@ -48,20 +48,20 @@
     </div>
 
     <hr>
-    <div class="row mt-4 mb-4"> {{-- Форма для добавления поста на странице всех постов в таблицу new_articles БД. Стандартная отправка методом POST "Submit" --}}
+    <div class="row mt-4 mb-4">  Форма для добавления поста на странице всех постов в таблицу new_articles БД. Стандартная отправка методом POST "Submit"
         <form action="/new-articles" method="post">
-            @csrf {{-- Обязательно указываем @csrf токен для отправки формы --}}
+            @csrf  Обязательно указываем @csrf токен для отправки формы
             <div class="mb-3">
                 <label for="title" class="form-label">NewArticle title</label>
                 <input type="text" name="title" class="form-control" id="title">
-                {{--<div class="alert alert-danger mt-2 d-none" id="title-error" role="alert">
-                </div>--}}
+                <div class="alert alert-danger mt-2 d-none" id="title-error" role="alert">
+                </div>
             </div>
             <div class="mb-3">
                 <label for="body" class="form-label">NewArticle content</label>
                 <textarea name="body" class="form-control" id="body" rows="3"></textarea>
-                {{--<div class="alert alert-danger mt-2 d-none" id="content-error" role="alert">
-                </div>--}}
+                <div class="alert alert-danger mt-2 d-none" id="content-error" role="alert">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary" >Add NewArticle</button>
         </form>
@@ -69,11 +69,7 @@
 
 </div>
 
-
-
-
-
-<!-- Modal --> {{-- Всплывающее модальное окно для обновления UPDATE конкретного поста c id --}}
+<!-- Modal -->  Всплывающее модальное окно для обновления UPDATE конкретного поста c id
 <div class="modal fade" id="update" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -82,12 +78,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action=""> {{-- Форма для редактирования (заполнения) полей --}}
-                    <input type="hidden" id="id-update"> {{-- Поле для идентификации поста по id используя jQuery в функции updateArticle и setFieldsForModalUpdate --}}
+                <form action="">  Форма для редактирования (заполнения) полей
+                    <input type="hidden" id="id-update">  Поле для идентификации поста по id используя jQuery в функции updateArticle и setFieldsForModalUpdate
                     <div class="mb-3">
                         <label for="title" class="form-label">Article title</label>
                         <input type="text" class="form-control" id="title-update">
-                        <div class="alert alert-danger mt-2 d-none" id="title-error" role="alert"> {{-- Если не прошли валидацию поля, вывод ошибки валидации поля --}}
+                        <div class="alert alert-danger mt-2 d-none" id="title-error" role="alert">  Если не прошли валидацию поля, вывод ошибки валидации поля
 
                         </div>
                     </div>
@@ -100,7 +96,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer"> {{-- Кнопки внизу модальной формы --}}
+            <div class="modal-footer">  Кнопки внизу модальной формы
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="updateArticle()">Save changes</button>
             </div>
@@ -108,7 +104,7 @@
     </div>
 </div>
 
-<div class="modal" id="delete" tabindex="-1"> {{-- Всплывающее модальное окно для удаления DELETE конкретного поста c id --}}
+<div class="modal" id="delete" tabindex="-1">  Всплывающее модальное окно для удаления DELETE конкретного поста c id
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -292,6 +288,119 @@
         })
     }
 
-</script>
+</script>--}}
+
+<button class="btn btn-primary mt-5 mb-5" onclick="addNewArticle()" > Add new article </button>
+
 </body>
+
+<script> /* Скрипты для демонстрации как взаимодействует API с авторизацией */
+
+    // При загрузке страницы, мы можем проверить в localStorage.getItem('token') если не существует, тогда мы отправляем пользователя на авторизацию
+    if (!localStorage.getItem('token')) {
+        // Запрос на авторизацию. Токен после авторизации у нас должен где-то храниться в браузере (мы перезагружаем страницу и токен у нас должен остаться). Мы можем хранить его в Local storage (Application) в таблице Key|Value
+        fetch('/api/login', { // Отправляем на адрес
+            method: "POST", // Метод "POST"
+            headers: { // Нам нужно отправить специальный заголовок с указанием, что мы передаем данные в формате JSON
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ /* Подготавливаем данные для передачи на сервер в формате JSON, упаковываем их методом stringify (на выходе будет обычный объект) */
+                username: "admin",
+                password: "111111"
+            })
+
+        }) // fetch() инструмент JS, с помощью которого можно отправлять различные fetch запросы (аналогичны ajax запросам) на сервер (https://learn.javascript.ru/fetch). В первую очередь, отправляем запрос на авторизацию
+            .then(response => response.json()) // Преобразовываем полученные данные в формат json
+            .then(data => { // Мы имеем доступ к данным, и мы с ними что-то можем сделать
+
+                let token = data.token; // Сохраняем данные в переменную token
+                localStorage.setItem('token', token); // Сохранение данных токена в браузере
+            });
+    }
+
+    function addNewArticle() {
+        // Добавляем fetch запрос на добавление (например) нового поста
+        fetch('/api/new-articles', {
+            method: "POST",
+            headers: { // Нам нужно отправить специальный заголовок с указанием, что мы передаем данные в формате JSON
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify({ // Подготавливаем данные для передачи на сервер в формате JSON, упаковываем их методом stringify (на выходе будет обычный объект)
+        title: "Test title form fetch",
+            body: "Test title form fetch -- "
+            })
+        })
+    }
+
+
+
+
+
+    // Авторизируемся в системе и получаем токен. Сделаем отправку ajax запроса на сервер через функцию fetch (без графической формы)
+
+    /*fetch('/api/login', { // Отправляем на адрес
+        method: "POST", // Метод "POST"
+        headers: { // Нам нужно отправить специальный заголовок с указанием, что мы передаем данные в формате JSON
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ /!* Подготавливаем данные для передачи на сервер в формате JSON, упаковываем их методом stringify (на выходе будет обычный объект) *!/
+            username: "admin",
+            password: "111111"
+        })
+
+    }) // fetch() инструмент JS, с помощью которого можно отправлять различные fetch запросы (аналогичны ajax запросам) на сервер (https://learn.javascript.ru/fetch). В первую очередь, отправляем запрос на авторизацию
+        .then(response => response.json()) // Преобразовываем полученные данные в формат json
+        .then(data => { // Мы имеем доступ к данным, и мы с ними что-то можем сделать
+
+            console.log(data)
+
+            let token = data.token; // Сохраняем данные в переменную token
+            /!*console.log('Token: ', data.token);*!/
+
+            // Добавляем fetch запрос на добавление (например) нового поста
+            fetch('/api/new-articles', {
+                method: "POST",
+                headers: { // Нам нужно отправить специальный заголовок с указанием, что мы передаем данные в формате JSON
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ //!* Подготавливаем данные для передачи на сервер в формате JSON, упаковываем их методом stringify (на выходе будет обычный объект) *!/
+                    title: "Test title form fetch",
+                    body: "Test title form fetch -- "
+                })
+            })
+
+        .then(response => response.json()) // Преобразовываем полученные данные в формат json
+        .then(data => {
+            console.log(data);
+        })
+
+
+    })*/
+
+    /*// После авторизации, нам доступна переменная token
+    console.log(token);
+*/
+
+    /*// Добавляем fetch запрос на добавление (например) нового поста
+    fetch('/api/new-articles', {
+        method: "POST",
+        headers: { // Нам нужно отправить специальный заголовок с указанием, что мы передаем данные в формате JSON
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ /!* Подготавливаем данные для передачи на сервер в формате JSON, упаковываем их методом stringify (на выходе будет обычный объект) *!/
+            title: "Test title form fetch",
+            body: "Test title form fetch -- "
+        })
+    })*/
+
+
+
+
+
+
+</script>
+
 </html>
